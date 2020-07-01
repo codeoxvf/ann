@@ -1,6 +1,6 @@
 import activation
 
-class NNNode:
+class Perceptron:
     def __init__(self, weights):
         self.activation = 0
         self.weights = weights
@@ -19,10 +19,10 @@ class NNNode:
         for i in range(len(self.weights)):
             self.weights[i] -= self.weight_delta[i]
 
-class NNLayer:
+class PerceptronLayer:
     def __init__(self, weights):
         self.node_count = len(weights)
-        self.nodes = [NNNode(weights[i]) for i in range(self.node_count)]
+        self.nodes = [Perceptron(weights[i]) for i in range(self.node_count)]
 
     def forward_prop(self, inputs):
         """Gets activations of each node in the layer."""
@@ -34,7 +34,7 @@ class NNLayer:
 class FFNN:
     def __init__(self, weights):
         self.layer_count = len(weights)
-        self.layers = [NNLayer(weights[i]) for i in range(self.layer_count)]
+        self.layers = [PerceptronLayer(weights[i]) for i in range(self.layer_count)]
 
     def forward_prop(self, inputs):
         """Feeds inputs forward through layers and gets activations."""
