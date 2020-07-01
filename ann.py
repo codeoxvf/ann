@@ -2,6 +2,7 @@ import activation
 
 class NNNode:
     def __init__(self, weights):
+        self.activation = 0
         self.weights = weights
         self.weight_delta = [0 for i in weights]
         self.error_term = 0
@@ -67,10 +68,6 @@ class FFNN:
                                 expected[j])
                     # hidden layer errors
                     else:
-                        # I feel like this could be less loopy
-                        output_error = sum([n.error_term * m \
-                                for n in self.layers[i + 1].nodes \
-                                for m in n.weights])
                         output_error = sum([n.error_term * n.weights[j] \
                                 for n in self.layers[i + 1].nodes])
 
@@ -83,7 +80,6 @@ class FFNN:
                     self.layers[i].nodes[j].weight_delta[k] = \
                             learning_rate * error_term * ustream_out
 
-        # another loop??
         # adjust weights
         for i in self.layers:
             for j in i.nodes:
