@@ -3,6 +3,8 @@ import activation
 class NNNode:
     def __init__(self, weights):
         self.weights = weights
+        self.weight_delta = [0 for i in weights]
+        self.error_term = 0
 
     def forward_prop(self, inputs):
         """Calculates weighted sum of inputs and bias."""
@@ -11,6 +13,10 @@ class NNNode:
                 for i in range(len(inputs))]) + self.weights[-1])
 
         return self.activation
+
+    def update_weights(self):
+        for i in range(len(self.weights)):
+            self.weights[i] -= self.weight_delta[i]
 
 class NNLayer:
     def __init__(self, weights):
@@ -37,53 +43,48 @@ class FFNN:
 
         return self.activations
 
-    def backprop(self, inputs, expected, learning_rate=1):
+    def backprop(self, inputs, expected, learning_rate=0.1):
         """Runs one iteration of training and updating weights."""
         self.forward_prop(inputs)
 
-        layer_error = 0
-
         for i in reversed(range(self.layer_count)):
-            curr_error = 0
-
             for j in range(self.layers[i].node_count):
                 for k in range(len(self.layers[i].nodes[j].weights)):
                     # upstream node's activation
+                    # bias
                     if k == len(self.layers[i].nodes[j].weights) - 1:
-                        # bias
-                        y_j = 1
+                        ustream_out = 1
+                    # input layer
                     elif i == 0:
-                        # input layer
-                        y_j = inputs[k]
+                        ustream_out = inputs[k]
+                    # hidden layers
                     else:
-                        y_j = self.layers[i - 1].nodes[k].activation
+                        ustream_out = self.layers[i - 1].nodes[k].activation
 
-                    # calculate error
+                    # output layer errors
                     if i == self.layer_count - 1:
-                        # output layer
-                        error = (expected[j] - \
-                                    self.layers[i].nodes[j].activation) * \
-                                activation.activation_prime( \
-                                    self.layers[i].nodes[j].activation)
-                        curr_error = sum([ \
-                                ((expected[i] - \
-                                    self.layers[-1].nodes[i].activation) \
-                                    ** 2) / 2 for i in range(len(expected))])
-
+                        output_error = (self.layers[i].nodes[j].activation - \
+                                expected[j])
+                    # hidden layer errors
                     else:
-                        error = layer_error * \
-                                sum([self.layers[i + 1].nodes[n].weights[m] \
-                                    for n in range( \
-                                        self.layers[i + 1].node_count) \
-                                    for m in range(len( \
-                                    self.layers[i + 1].nodes[n].weights))]) * \
-                                activation.activation_prime( \
-                                    self.layers[i].nodes[j].activation)
+                        # I feel like this could be less loopy
+                        output_error = sum([n.error_term * m \
+                                for n in self.layers[i + 1].nodes \
+                                for m in n.weights])
+                        output_error = sum([n.error_term * n.weights[j] \
+                                for n in self.layers[i + 1].nodes])
 
-                        curr_error += error
+                    activation_prime = activation.activation_prime( \
+                            self.layers[i].nodes[j].activation)
 
-                    self.layers[i].nodes[j].weights[k] -= \
-                            learning_rate * error * y_j
+                    error_term = output_error * activation_prime
+                    self.layers[i].nodes[j].error_term = error_term
 
-            layer_error = curr_error
-            curr_error = 0
+                    self.layers[i].nodes[j].weight_delta[k] = \
+                            learning_rate * error_term * ustream_out
+
+        # another loop??
+        # adjust weights
+        for i in self.layers:
+            for j in i.nodes:
+                j.update_weights()
