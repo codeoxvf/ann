@@ -1,4 +1,4 @@
-import ann
+import mlp
 import random
 
 inputs = [[0, 0], [0, 1], [1, 0], [1, 1]]
@@ -22,7 +22,7 @@ for i in range(len(node_count)):
 
     weights.append(layer)
 
-n = ann.FFNN(weights)
+n = mlp.FFNN(weights)
 
 print(weights)
 print()

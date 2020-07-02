@@ -31,7 +31,7 @@ class PerceptronLayer:
 
         return self.output
 
-class FFNN:
+class MLP:
     def __init__(self, weights):
         self.layer_count = len(weights)
         self.layers = [PerceptronLayer(weights[i]) for i in range(self.layer_count)]
