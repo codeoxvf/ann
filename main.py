@@ -24,8 +24,6 @@ for i in range(len(node_count)):
 
 n = ann.FFNN(weights)
 
-weights = [[[rand_weight() for i in range(3)] for j in range(2)], \
-        [[rand_weight() for i in range(3)]]]
 print(weights)
 print()
 for i in inputs:
