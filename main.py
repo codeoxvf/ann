@@ -22,7 +22,7 @@ for i in range(len(node_count)):
 
     weights.append(layer)
 
-n = mlp.FFNN(weights)
+n = mlp.MLP(weights)
 
 print(weights)
 print()
