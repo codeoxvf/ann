@@ -1,40 +1,24 @@
-import ann
-import random
+# TODO: object-oriented?
+import numpy as np
+import mlp
 
-inputs = [[0, 0], [0, 1], [1, 0], [1, 1]]
-expected = [[0], [1], [1], [0]]
+epochs = 1
+learning_rate = 0.1
 
-def rand_weight():
-    return random.randint(-10, 10) / 10.0
+node_count = (2, 2, 1)
+layer_count = len(node_count)
 
-# first element inputs, last element outputs
-node_count = [2, 2, 1]
-weights = []
+inputs = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])
+expected = np.array([[0.0], [1.0], [1.0], [0.0]])
 
-for i in range(len(node_count)):
-    if i == 0:
-        continue
+weights = [np.random.uniform(low=-1.0, high=1.0, size=(i, 3)) \
+    for i in node_count]
 
-    layer = []
+[print(mlp.forward_prop(i, weights)) for i in inputs]
 
-    for j in range(node_count[i]):
-        layer.append([rand_weight() for k in range(node_count[i - 1] + 1)])
+for _ in range(epochs):
+    for curr_input in inputs:
+        activations = mlp.forward_prop(inputs[curr_input], weights)
 
-    weights.append(layer)
-
-n = ann.FFNN(weights)
-
-print(weights)
-print()
-for i in inputs:
-    print(n.forward_prop(i))
-print()
-
-for j in range(10000):
-    for i in range(len(inputs)):
-        n.backprop(inputs[i], expected[i], learning_rate=0.1)
-
-print(weights)
-print()
-for i in inputs:
-    print(n.forward_prop(i))
+        weights = mlp.backprop(inputs[curr_input], \
+            expected[curr_input], weights)
