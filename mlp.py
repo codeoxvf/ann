@@ -37,6 +37,7 @@ def forward_prop(inputs, weights):
                 curr_activation[j] = activation(node_activation( \
                     prev_activation, weights[i][j]))
             else:
+                continue
                 curr_activation[j] = inputs[j]
 
         prev_activation = curr_activation
@@ -44,7 +45,7 @@ def forward_prop(inputs, weights):
 
     return activations
 
-@numba.jit(nopython=True)
+#@numba.jit(nopython=True)
 def backprop(inputs, expected, activations, weights, learning_rate=0.1):
     """Runs one iteration of forward propagation through the neural net, then
     backpropagates and returns updated weights."""
@@ -53,19 +54,24 @@ def backprop(inputs, expected, activations, weights, learning_rate=0.1):
 
     for _ in range(len(weights)):
         i = len(weights) - _ - 1
-        if i == 0:
-            break
 
         curr_error_term = np.empty(weights[i].shape[0])
 
         for j in range(weights[i].shape[0]):
-            ustream_activation = np.append(activations[i-1], 1)
+            if i == 0:
+                ustream_activation = inputs
+            else:
+                ustream_activation = np.append(activations[i-1], 1)
 
             if i == len(weights) - 1:
                 activation_error = activations[-1][j] - expected[j]
             else:
-                activation_error = np.sum(np.multiply(dstream_error_term, \
-                    weights[i]))
+                # FIXME
+                activation_error = 0.0
+                for k in range(dstream_error_term.shape[0]):
+                    activation_error += np.sum(dstream_error_term[k] * \
+                        weights[i][k])
+                activation_error *= activation_prime(activations[i][j])
 
             error_term = activation_prime(activations[i][j]) * activation_error
 
