@@ -1,17 +1,17 @@
-# TODO: object-oriented?
 import numpy as np
 import numba
 import mlp
 
+# TODO: object-oriented?
+
 def print_results(inputs, weights):
-    print("Weights: ", weights)
-    print("Results:")
+    print('Weights: ', weights)
+    print('Results:')
     [print(mlp.forward_prop(i, weights)) for i in inputs]
     print()
 
-epochs = 1
+epochs = 10000
 
-input_count = 2
 node_count = (2, 1)
 layer_count = len(node_count)
 
@@ -19,11 +19,13 @@ inputs = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])
 expected = np.array([[0.0], [1.0], [1.0], [0.0]])
 
 weights = numba.typed.List()
-# TODO: dynamic weight array generation
-for i in node_count:
-    pass
-[weights.append(np.random.uniform(low=-1.0, high=1.0, size=(i))) \
-    for i in node_count]
+for i in range(layer_count):
+    if i > 0:
+        weights.append(np.random.uniform(low=-1.0, high=1.0, \
+            size=(node_count[i], node_count[i-1] + 1)))
+        continue
+    weights.append(np.random.uniform(low=-1.0, high=1.0, \
+        size=(node_count[i], inputs[0].shape[0] + 1)))
 
 print_results(inputs, weights)
 
