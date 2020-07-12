@@ -25,25 +25,14 @@ def node_activation(inputs, weights):
 def forward_prop(inputs, weights):
     """Runs one iteration of forward propagation through the neural net and
     returns activations."""
-    activations = [np.empty(weights[i].shape[0]) \
+    result = [np.empty(weights[i].shape[0]) \
         for i in range(len(weights))]
-    prev_activation = inputs
 
     for i in range(len(weights)):
-        curr_activation = np.empty(weights[i].shape[0])
-
         for j in range(weights[i].shape[0]):
-            if i > 0:
-                curr_activation[j] = activation(node_activation( \
-                    prev_activation, weights[i][j]))
-            else:
-                continue
-                curr_activation[j] = inputs[j]
+            result[i][j] = activation(node_activation(inputs, weights[i][j]))
 
-        prev_activation = curr_activation
-        activations[i] = prev_activation
-
-    return activations
+    return result
 
 #@numba.jit(nopython=True)
 def backprop(inputs, expected, activations, weights, learning_rate=0.1):
