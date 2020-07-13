@@ -40,18 +40,26 @@ def backprop(inputs, expected, activations, weights, learning_rate=0.1):
         if i == layer_count - 1:
             error_term = activations[-1] - expected
         else:
-            error_term = np.sum(dstream_error_term * weights[i+1], axis=1)
+            # each node's error term is the sum of the product of all the
+            # upstream nodes' error terms and connecting weights
+            # TODO: don't use for loop
+            error_term = np.empty(node_count[i])
+            for j in range(node_count[i]):
+                error_term[j] = np.sum(dstream_error_term * weights[i+1].T[j])
+
         error_term = error_term * activation_prime(activations[i])
 
         if i > 0:
             ustream_activation = activations[i-1]
         else:
             ustream_activation = inputs
+
         ustream_activation = np.append(ustream_activation, 1)
 
+        # TODO: don't use for loop
         for j in range(error_term.shape[0]):
-            weight_delta[i][j] = error_term[j] * ustream_activation
-        weight_delta[i] *= learning_rate
+            weight_delta[i][j] = learning_rate * \
+                error_term[j] * ustream_activation
 
         dstream_error_term = error_term
 

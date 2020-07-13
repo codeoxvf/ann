@@ -4,10 +4,10 @@ import mlp
 
 # TODO: object-oriented?
 
+@numba.jit(nopython=True)
 def print_results(inputs, weights):
     print('Weights: ', weights)
-    print('Results:')
-    [print(mlp.forward_prop(i, weights)) for i in inputs]
+    print('Results:', [mlp.forward_prop(i, weights)[-1] for i in inputs])
     print()
 
 epochs = 10000
